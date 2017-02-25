@@ -3,12 +3,13 @@
 import time
 import paho.mqtt.client as mqtt
 
-#Q_BROKER="localhost"
-Q_BROKER="m11.cloudmqtt.com"
-Q_PORT=19873
+Q_BROKER="localhost"
+Q_PORT=1883
 Q_TOPIC="hello"
-Q_USER="prcegtgc"
-Q_PSWD="7frPa1U_VXqA"
+#Q_BROKER="m11.cloudmqtt.com"
+#Q_PORT=19873
+#Q_USER="prcegtgc"
+#Q_PSWD="7frPa1U_VXqA"
 
 IsConnected=False
 IsCnxnErr=False
@@ -37,8 +38,8 @@ def run():
     mqttc.on_connect = on_connect
     mqttc.on_disconnect = on_disconnect
     mqttc.on_publish = on_publish
-#    mqttc.on_log = on_log
-    mqttc.username_pw_set(Q_USER, Q_PSWD)
+    mqttc.on_log = on_log
+#    mqttc.username_pw_set(Q_USER, Q_PSWD)
 
     rc=mqttc.connect(Q_BROKER, Q_PORT)
     mqttc.loop_start()

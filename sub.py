@@ -2,16 +2,17 @@
 
 import paho.mqtt.client as mqtt
 
-#Q_BROKER="localhost"
-Q_BROKER="m11.cloudmqtt.com"
-Q_PORT=19873
+Q_BROKER="localhost"
+Q_PORT=1883
 Q_TOPIC="hello"
-Q_USER="prcegtgc"
-Q_PSWD="7frPa1U_VXqA"
+#Q_BROKER="m11.cloudmqtt.com"
+#Q_PORT=19873
+#Q_USER="prcegtgc"
+#Q_PSWD="7frPa1U_VXqA"
 
 # The callback for when the client receives a CONNACK response from the server.
 def on_connect(client, userdata, flags, rc):
-    print("Connected with result code "+str(rc))
+    print("CB: Connected with result code "+str(rc))
 
     # Subscribing in on_connect() means that if we lose the connection and
     # reconnect then subscriptions will be renewed.
@@ -21,10 +22,14 @@ def on_connect(client, userdata, flags, rc):
 def on_message(client, userdata, msg):
     print(msg.topic+" "+str(msg.payload))
 
+def on_log(client, userdata, level, buf):
+    print("log: ",buf)
+
 client = mqtt.Client()
-client.username_pw_set(Q_USER, Q_PSWD)
+#client.username_pw_set(Q_USER, Q_PSWD)
 client.on_connect = on_connect
 client.on_message = on_message
+client.on_log = on_log
 
 
 client.connect(Q_BROKER, Q_PORT, 60)
