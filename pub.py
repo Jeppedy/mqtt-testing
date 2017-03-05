@@ -5,22 +5,21 @@ import paho.mqtt.client as mqtt
 
 Q_BROKER="localhost"
 Q_PORT=1883
-Q_TOPIC="hello"
+Q_TOPIC="temperatures"
 #Q_BROKER="m11.cloudmqtt.com"
 #Q_PORT=19873
-#Q_USER="prcegtgc"
-#Q_PSWD="7frPa1U_VXqA"
+Q_USER="prcegtgc"
+Q_PSWD="7frPa1U_VXqA"
 
 IsConnected=False
-IsCnxnErr=False
+cnxnRC=-1
 
 def on_connect(client, userdata, flags, rc):
-    global IsConnected,IsCnxnErr
+    global IsConnected,cnxnRC
     print("CB: Connected;rtn code [%d]"% (rc) )
+    cnxnRC=rc
     if( rc == 0 ):
         IsConnected=True
-    else:
-        IsCnxnErr=True
 
 def on_disconnect(client, userdata, rc):
     global IsConnected
@@ -38,26 +37,31 @@ def run():
     mqttc.on_connect = on_connect
     mqttc.on_disconnect = on_disconnect
     mqttc.on_publish = on_publish
-    mqttc.on_log = on_log
+#    mqttc.on_log = on_log
 #    mqttc.username_pw_set(Q_USER, Q_PSWD)
 
     rc=mqttc.connect(Q_BROKER, Q_PORT)
     mqttc.loop_start()
 
     retry=0
-    while( (not IsConnected) and (not IsCnxnErr) and retry <= 10):
+    while( (not IsConnected) and cnxnRC == -1 and retry <= 10):
         print("Waiting for Connect")
         time.sleep(.05)
+        mqttc.loop()
         retry += 1
-    if( not IsConnected or IsCnxnErr ):
-        print("No connection could be established")
+    if( not IsConnected ):
+        print("No connection could be established: rc[%d]") % cnxnRC
         return 
 
-    rc=mqttc.publish(Q_TOPIC, "Hello, World!",2)
-    rc=mqttc.publish(Q_TOPIC, "Hello, World2",2)
-    rc=mqttc.publish(Q_TOPIC, "Hello, World3",2)
+#    for x in range(1000):
+    info=mqttc.publish(Q_TOPIC, "Message goes here", False)
+#      print ("MsgID?:"+str(info) )
+#      print ("IsPub?: %s")%(str(info.is_published()))
+    info.wait_for_publish()
+#      print ("IsPub?: %s")%(str(info.is_published()))
+    print ("Pubish complete")
 
-    time.sleep(.25)
+#    time.sleep(1)
 
     mqttc.disconnect()
     while( IsConnected ):
